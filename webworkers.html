@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>WebWorker</title>
+		<meta charset="utf-8" />
+		<style>
+			body {
+				font-size: 26px;
+				font-family: Verdana;
+			}
+
+			div {
+				margin-bottom: .3em;
+			}
+
+		</style>
+	</head>
+	<body>
+	<!-- JQUERY LOADER -->
+		<script src="jquery-2.1.4.js"></script>
+
+
+		<div>
+			<input type="text" id="message" class="form-control" />
+			<button type="button" class="btn" id="send-message" disabled="disabled">
+			Send
+			</button>
+
+			<ul id="messages">
+			</ul>
+
+
+
+		<script>
+			//$(document).ready( function() {
+
+				var worker = new Worker('WebWorker.js');
+
+				worker.addEventListener('message', function(e) {
+					//Recibimos el mensaje del trabajador
+					if (e.data == "READY") {
+
+						$('#messages').append('<li>Worker ready</li>');
+
+						//Enable de button
+						$('#send-message').removeAttr('disabled').click( function() {
+							//Send the contents of the textbox to the worker
+							var message = $('#message').val();
+							worker.postMessage( message );
+						});
+
+						//Place the focus on the textbox
+						$('#message').focus();
+
+					} else {
+						// if the message wasn't ready, it's just a normal message
+						$('#messages').append('<li>' + e.data + '</li>');
+
+						//Clear the textbox and reset focus
+						$('#message').val('').focus();
+					}
+					//var message = e.data;
+					//alert(message);
+				});
+
+				//worker.postMessage('hello Worker!');
+
+			//});	
+
+		</script>
+	</body>
+</html>
