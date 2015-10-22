@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>WebWorker</title>
+		<meta charset="utf-8" />
+		<style>
+			body {
+				font-size: 26px;
+				font-family: Verdana;
+			}
+
+			div {
+				margin-bottom: .3em;
+			}
+
+		</style>
+	</head>
+	<body>
+	<!-- JQUERY LOADER -->
+		<script src="jquery-2.1.4.js"></script>
+
+
+		<div>
+			<button type="button" class="btn" id="start-worker">
+			Start Worker
+			</button>
+
+			<ul id="messages">
+			</ul>
+
+
+
+		<script>
+			//$(document).ready( function() {
+			$(function() {
+				$('#start-worker').click( function() {
+					// get promise
+					var promise = beginProcessing();
+
+					//register oir event handlers
+					promise.progress( function (message) {
+						//update the UI
+						$('#messages').append('<li>Progress:' + message + '</li>');
+					}).done( function(message)  {
+						$('#messages').append('<li>Completion:' + message + '</li>');
+					});
+				});
+			})
+
+			//Worker implementation using Deferred
+
+
+			function beginProcessing() {
+
+				// Create deferred message
+				var deferred = new $.Deferred();
+
+				// Create our Worker
+				var worker = new Worker('deferred.js');
+
+				//Register the message event handler
+				worker.addEventListener('message',function (e) {
+					//simple messaging - if the worker is ready it'll send a message with READY
+					if (e.data === 'READY') {
+						deferred.notify('Worker started');
+					} else if (e.data === 'COMPLETED') {
+						// processing done
+						deferred.resolve('Worker completed');
+						worker.terminate();
+					}
+				});
+
+				return deferred.promise();
+			}
+
+			
+
+		</script>
+	</body>
+</html>
